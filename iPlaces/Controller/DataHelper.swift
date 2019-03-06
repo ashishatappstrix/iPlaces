@@ -22,7 +22,7 @@ class DataHelper : Decodable {
     
     static func filter(from data: [City], for searchString: String) -> [City] {
         let searchStartIndex = getIndexForSlice(from: data, with: searchString.lowercased(), for: .startingIndex)
-        return DataHelper.arrayTake(m: searchStartIndex, n: data.count - 1, arrayIn: data) as! [City]
+        return DataHelper.arrayTake(m: searchStartIndex + 1, n: data.count - 1, arrayIn: data) as! [City]
     }
     
     static func arrayTake(m: Int, n: Int, arrayIn: Array<Any>) -> Array<Any>
@@ -37,7 +37,7 @@ class DataHelper : Decodable {
         var endPointer = data.count - 1
         var currentPointer = (startPointer + endPointer) / 2
         while startPointer != currentPointer {
-            if string <= data[currentPointer].name {
+            if string <= data[currentPointer].name.lowercased() {
                 
                 endPointer = currentPointer
                 print("ENDPOINTER:\(string) \(data[endPointer].name)")
@@ -49,7 +49,7 @@ class DataHelper : Decodable {
             
             currentPointer = (startPointer + endPointer) / 2
         }
-        return index == .startingIndex ? endPointer : (data.count - endPointer)
+        return endPointer
     }
 }
 

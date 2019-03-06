@@ -34,15 +34,19 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
     
     func configureView() {
         definesPresentationContext = true
+        self.citiesTableView.contentInsetAdjustmentBehavior = .automatic
+        
         if #available(iOS 11.0, *) {
-            navigationItem.searchController = searchController
+            navigationController?.navigationBar.prefersLargeTitles = true
             navigationItem.hidesSearchBarWhenScrolling = false
+            navigationItem.searchController = searchController
         }
         else {
             tableView.tableHeaderView = searchController.searchBar
         }
         
-        searchController.searchResultsUpdater = self as UISearchResultsUpdating
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search cities"
     }
     
@@ -94,6 +98,8 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
+
         let city = cities?[indexPath.row]
         delegate?.citySelected(city!)
         if let mapViewController = delegate as? MapViewController,
@@ -122,9 +128,11 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
         
         //Binary search to filter out results
         guard let searchText = searchController.searchBar.text, searchText != "" else {
+            self.cities = DataHelper.shared.sortedCitiesInfo
+            self.citiesTableView.reloadData()
             return
         }
-        self.cities = DataHelper.filter(from: self.cities ?? [], for: searchText)
+        self.cities = DataHelper.filter(from: DataHelper.shared.sortedCitiesInfo ?? [], for: searchText)
         self.citiesTableView.reloadData()
     }
 }
