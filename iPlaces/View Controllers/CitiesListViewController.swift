@@ -12,18 +12,38 @@ protocol MapViewDelegate: class {
     func citySelected(_ city: City)
 }
 
-class CitiesListViewController: UITableViewController {
+class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
     
+    let progressHUD = ProgressIndicator(text: "Loading..")
     //Tableview Datasource
     var cities : [City]?
-    
-    var firstCity: City?
-    
     weak var delegate: MapViewDelegate?
+    let searchController = UISearchController(searchResultsController: nil)
+    @IBOutlet var citiesTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //        self.getSortedCities()
+        
+        //Keyboard notifications
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        configureView()
+    }
+    
+    func configureView() {
+        definesPresentationContext = true
+        if #available(iOS 11.0, *) {
+            navigationItem.searchController = searchController
+            navigationItem.hidesSearchBarWhenScrolling = false
+        }
+        else {
+            tableView.tableHeaderView = searchController.searchBar
+        }
+        
+        searchController.searchResultsUpdater = self as UISearchResultsUpdating
+        searchController.searchBar.placeholder = "Search cities"
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -31,6 +51,8 @@ class CitiesListViewController: UITableViewController {
         if let _ = cities {
             
         } else {
+            self.view.addSubview(progressHUD)
+            self.view.backgroundColor = UIColor.white
             self.getSortedCities()
         }
     }
@@ -40,8 +62,10 @@ class CitiesListViewController: UITableViewController {
             DispatchQueue.main.async {
                 if citiesList.count > 0 {
                     self?.cities = citiesList
-                    self?.firstCity = citiesList[0]
-                    self?.tableView.reloadData()
+                    DataHelper.shared.sortedCitiesInfo = citiesList
+                    self?.citiesTableView.reloadData()
+                    self?.progressHUD.removeFromSuperview()
+                    
                 } else {
                     self?.cities = nil
                 }
@@ -76,5 +100,31 @@ class CitiesListViewController: UITableViewController {
             let mapNavigationController = mapViewController.navigationController {
             splitViewController?.showDetailViewController(mapNavigationController, sender: nil)
         }
+    }
+    
+    // MARK: - Keyboard hide/show methods
+    
+    @objc func keyboardWillShow(_ notification: Foundation.Notification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            let edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
+            tableView.contentInset = edgeInsets
+            tableView.scrollIndicatorInsets = edgeInsets
+        }
+    }
+    
+    @objc func keyboardWillHide(_ notification: Foundation.Notification) {
+        tableView.contentInset = .zero
+        tableView.scrollIndicatorInsets = .zero
+    }
+    
+    //Search view delegate
+    func updateSearchResults(for searchController: UISearchController) {
+        
+        //Binary search to filter out results
+        guard let searchText = searchController.searchBar.text, searchText != "" else {
+            return
+        }
+        self.cities = DataHelper.filter(from: self.cities ?? [], for: searchText)
+        self.citiesTableView.reloadData()
     }
 }

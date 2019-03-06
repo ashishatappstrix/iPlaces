@@ -8,7 +8,7 @@
 
 import UIKit
 import MapKit
-class MapViewController: UIViewController {
+class MapViewController: UIViewController, MKMapViewDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
     var locationManager = CLLocationManager()
@@ -25,18 +25,21 @@ class MapViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        guard let city = city else { return }
-//
-        
+        checkLocationAuthorizationStatus()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         self.centerMapOnUserLocation()
-//        mapView.region = MKCoordinateRegion(center: city.coordinate, span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1))
-        
-//        let coordinateRegion = MKCoordinateRegionMakeWithDistance(city.coordinate,
-//                                                                  regionRadius * 2.0, regionRadius * 2.0)
-//        mapView.setRegion(coordinateRegion, animated: true)
-//
-//        let coregion = MKCOordina
+    }
+    
+    // MARK: - CLLocationManager
+    func checkLocationAuthorizationStatus() {
+        if CLLocationManager.authorizationStatus() == .authorizedAlways {
+            mapView.showsUserLocation = true
+        } else {
+            locationManager.requestAlwaysAuthorization()
+        }
     }
     
     func configureLocationServices() {
@@ -51,7 +54,30 @@ class MapViewController: UIViewController {
         guard let coordinate = city?.coordinate else {return}
         let coordinateRegion = MKCoordinateRegion(center: coordinate, latitudinalMeters: regionRadius, longitudinalMeters: regionRadius)
         mapView.setRegion(coordinateRegion, animated: true)
+        
+        let myAnnotation = MKPointAnnotation()
+        myAnnotation.title = city?.nameAndCountry
+        myAnnotation.coordinate = CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude
+        )
+        
+        mapView.addAnnotation(myAnnotation)
     }
+    
+//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+//        guard annotation is MKPointAnnotation else { return nil }
+//        
+//        let identifier = "Annotation"
+//        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+//        
+//        if annotationView == nil {
+//            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+//            annotationView!.canShowCallout = true
+//        } else {
+//            annotationView!.annotation = annotation
+//        }
+//        
+//        return annotationView
+//    }
 }
 
 extension MapViewController: MapViewDelegate {

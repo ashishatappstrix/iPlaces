@@ -19,6 +19,7 @@
 		DD2B3EC4222E35D500CF9122 /* CIty.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2B3EC3222E35D500CF9122 /* CIty.swift */; };
 		DD2B3EC6222E35E500CF9122 /* Coordinates.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2B3EC5222E35E500CF9122 /* Coordinates.swift */; };
 		DD2B3EC9222E38EE00CF9122 /* DataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2B3EC8222E38EE00CF9122 /* DataHelper.swift */; };
+		DD2B3ECD222F35E300CF9122 /* ProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2B3ECC222F35E300CF9122 /* ProgressIndicator.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		DD2B3EC3222E35D500CF9122 /* CIty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIty.swift; sourceTree = "<group>"; };
 		DD2B3EC5222E35E500CF9122 /* Coordinates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinates.swift; sourceTree = "<group>"; };
 		DD2B3EC8222E38EE00CF9122 /* DataHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHelper.swift; sourceTree = "<group>"; };
+		DD2B3ECC222F35E300CF9122 /* ProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressIndicator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				DD2B3EC8222E38EE00CF9122 /* DataHelper.swift */,
+				DD2B3ECC222F35E300CF9122 /* ProgressIndicator.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -312,6 +315,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD2B3ECD222F35E300CF9122 /* ProgressIndicator.swift in Sources */,
 				DD2B3E8A222E303F00CF9122 /* AppDelegate.swift in Sources */,
 				DD2B3EC9222E38EE00CF9122 /* DataHelper.swift in Sources */,
 				DD2B3EBC222E34E700CF9122 /* MapViewController.swift in Sources */,

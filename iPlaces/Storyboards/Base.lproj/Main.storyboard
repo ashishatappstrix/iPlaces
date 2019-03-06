@@ -40,7 +40,7 @@
             </objects>
             <point key="canvasLocation" x="900" y="-113.79310344827587"/>
         </scene>
-        <!--Root View Controller-->
+        <!--Find Places-->
         <scene sceneID="7W4-sz-gyc">
             <objects>
                 <tableViewController clearsSelectionOnViewWillAppear="NO" id="fp2-AH-keW" customClass="CitiesListViewController" customModule="iPlaces" customModuleProvider="target" sceneMemberID="viewController">
@@ -72,9 +72,17 @@
                             <outlet property="delegate" destination="fp2-AH-keW" id="gTO-Rh-jZ5"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="qBD-xk-jZl"/>
+                    <navigationItem key="navigationItem" title="Find Places" id="qBD-xk-jZl" userLabel="Find Places"/>
+                    <connections>
+                        <outlet property="citiesTableView" destination="tFw-JI-6mz" id="QIR-dB-9QL"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="POI-7k-5MP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchBar contentMode="redraw" id="sNw-zg-tVt">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <textInputTraits key="textInputTraits"/>
+                </searchBar>
             </objects>
             <point key="canvasLocation" x="913" y="-778"/>
         </scene>
