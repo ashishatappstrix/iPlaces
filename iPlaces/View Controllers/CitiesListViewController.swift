@@ -14,22 +14,26 @@ protocol MapViewDelegate: class {
 
 class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
     
+    //Outlets
+    @IBOutlet var citiesTableView: UITableView!
+    
+    //Member variables/constants
     let progressHUD = ProgressIndicator(text: "Loading..")
-    //Tableview Datasource
+    let dataHelper = DataHelper()
     var cities : [City]?
     weak var delegate: MapViewDelegate?
     let searchController = UISearchController(searchResultsController: nil)
-    @IBOutlet var citiesTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //Keyboard notifications
+        self.registerForKeyboardNotifications()
+        configureView()
+    }
+    
+    func registerForKeyboardNotifications() {
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        
-        configureView()
     }
     
     func configureView() {
@@ -47,36 +51,41 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
         
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = "Search cities"
+        searchController.searchBar.placeholder = "Search Places"
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if let _ = cities {
-            
-        } else {
+        //On view will appear, if there no cities, load it from helper class
+        guard let _ = cities else {
             self.view.addSubview(progressHUD)
             self.view.backgroundColor = UIColor.white
             self.getSortedCities()
+            return
         }
     }
     
+    //Get all sorted cities information from Helper
     fileprivate func getSortedCities()  {
-        return DataHelper.sortCityNames { [weak self](citiesList) -> Void in
-            DispatchQueue.main.async {
-                if citiesList.count > 0 {
-                    self?.cities = citiesList
-                    DataHelper.shared.sortedCitiesInfo = citiesList
-                    self?.citiesTableView.reloadData()
-                    self?.progressHUD.removeFromSuperview()
-                    
-                } else {
-                    self?.cities = nil
+        let timeTaken = dataHelper.duration {
+            return dataHelper.sortCityNames { [weak self](citiesList) -> Void in
+                DispatchQueue.main.async {
+                    if citiesList.count > 0 {
+                        self?.cities = citiesList
+                        DataHelper.shared.sortedCitiesInfo = citiesList
+                        self?.citiesTableView.reloadData()
+                        self?.progressHUD.removeFromSuperview()
+                    } else {
+                        self?.cities = nil
+                    }
                 }
             }
         }
+        
+        print("Time take for func getSortedCities(): \(timeTaken)")
     }
     
+     // MARK: - Tableview Datasource
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let cities = cities else {
             return 0
@@ -86,7 +95,6 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cityCell", for: indexPath)
-        
         guard let city = cities?[indexPath.row] else  {
             return cell
         }
@@ -97,11 +105,12 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
         return cell
     }
     
+     // MARK: - Tableview Delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
-
-        let city = cities?[indexPath.row]
-        delegate?.citySelected(city!)
+        guard let city = cities?[indexPath.row] else {
+            return
+        }
+        delegate?.citySelected(city)
         if let mapViewController = delegate as? MapViewController,
             let mapNavigationController = mapViewController.navigationController {
             splitViewController?.showDetailViewController(mapNavigationController, sender: nil)
@@ -109,7 +118,6 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
     }
     
     // MARK: - Keyboard hide/show methods
-    
     @objc func keyboardWillShow(_ notification: Foundation.Notification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             let edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardSize.height, right: 0)
@@ -123,16 +131,18 @@ class CitiesListViewController: UITableViewController, UISearchResultsUpdating {
         tableView.scrollIndicatorInsets = .zero
     }
     
-    //Search view delegate
+    // MARK: Search Controller Delegate Method
     func updateSearchResults(for searchController: UISearchController) {
-        
-        //Binary search to filter out results
         guard let searchText = searchController.searchBar.text, searchText != "" else {
             self.cities = DataHelper.shared.sortedCitiesInfo
             self.citiesTableView.reloadData()
             return
         }
-        self.cities = DataHelper.filter(from: DataHelper.shared.sortedCitiesInfo ?? [], for: searchText)
-        self.citiesTableView.reloadData()
+        
+        let timeTaken = dataHelper.duration {
+            self.cities = dataHelper.filter(from: DataHelper.shared.sortedCitiesInfo ?? [], for: searchText)
+            self.citiesTableView.reloadData()
+        }
+        print("Time take to filter string: String: \(searchText), Time:  \(timeTaken)")
     }
 }
